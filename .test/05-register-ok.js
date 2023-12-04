@@ -42,7 +42,7 @@ cmd.on("close", code => {
         //////////////////////////////////////////////////////
         let nouusuari = "random";
         let novacontrasenya = "mesrandom";
-        let nouemail = "encaramesrandom";
+        let nouemail = "encaramesrandom@randisssimus.com";
         await driver.get("http://localhost:8000/browser/www/");
         await driver.findElement(By.id("reg_usuari")).sendKeys(nouusuari);
         await driver.findElement(By.id("reg_contrasenya_1")).sendKeys(novacontrasenya);
@@ -59,7 +59,6 @@ cmd.on("close", code => {
 
         // testejem LOGIN CORRECTE pel nou usuari
         //////////////////////////////////////////////////////
-        await driver.get("http://localhost:8000/browser/www/");
         await driver.findElement(By.id("usuari")).sendKeys(nouusuari);
         await driver.findElement(By.id("contrasenya")).sendKeys(novacontrasenya);
         await driver.findElement(By.xpath("//button[text()='Login']")).click();
@@ -69,11 +68,11 @@ cmd.on("close", code => {
         alert = await driver.switchTo().alert();
         alertText = await alert.getText();
         assertMessage = "Login exitós";
-        assert(alertText==assertMessage,"ERROR TEST: El nou usuari registrat no es loga correctament.");
+        assert(alertText==assertMessage,"ERROR TEST: El nou usuari registrat no es loga correctament. TEXT="+alertText);
         await alert.accept();
 
-        // temps d'espera final
-        await driver.sleep(2000);
+        console.log("TEST OK");
+
     } finally {
         // tanquem servidor
         await cmd.kill("SIGHUP")
