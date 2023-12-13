@@ -3,12 +3,19 @@ const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
 const { spawn } = require("child_process");
 const assert = require('assert');
-const HEADLESS = true;
+const HEADLESS = process.env.HEADLESS=="true" ? true : false;
+const CHROME_TESTS = process.env.CHROME_TESTS ? true : false;
 
-
+console.log("HEADLESS="+HEADLESS)
 
 // Engeguem server amb la APP
-const cmd = spawn("cordova", ["serve"]);
+var cmd = null;
+if( process.platform=="win32" ) {
+    cmd = spawn("cordova", ["serve"],{shell:true});
+} else {
+    // linux, macos (darwin), or other
+    cmd = spawn("cordova", ["serve"]);
+}
 
 cmd.stdout.on("data", data => {
     console.log(`stdout: ${data}`);
@@ -28,12 +35,26 @@ cmd.on("close", code => {
 
 (async function test_exemple() {
     // Configurem driver
-    let driver = await new Builder()
-            .forBrowser(Browser.FIREFOX)
-            .setFirefoxOptions(new firefox.Options().headless())
-            //.forBrowser(Browser.CHROME)
-            //.setChromeOptions(new chrome.Options().addArguments('--headless=new'))
+    let firefoxOptions = new firefox.Options();
+    let chromeOptions = new chrome.Options();
+    if( HEADLESS ) {
+        console.log("Running Headless Tests...")
+        firefoxOptions = new firefox.Options().headless();
+        chromeOptions = new chrome.Options().addArguments('--headless=new');
+    }
+    let driver = null;
+    if( CHROME_TESTS ) {
+        driver = await new Builder()
+            .forBrowser(Browser.CHROME)
+            .setChromeOptions(chromeOptions)
             .build();
+    } else {
+        driver = await new Builder()
+            .forBrowser(Browser.FIREFOX)
+            .setFirefoxOptions(firefoxOptions)
+            .build();
+    }
+
     try {
         // deixem temps a que el servidor es posi en marxa
         await driver.sleep(2000);
@@ -57,7 +78,12 @@ cmd.on("close", code => {
 
     } finally {
         // tanquem servidor
-        await cmd.kill("SIGHUP")
+        if( process.platform=="win32" ) {
+            spawn("taskkill", ["/pid", cmd.pid, '/f', '/t']);
+        } else {
+            // Linux, MacOS or other
+            await cmd.kill("SIGHUP")
+        }
         // tanquem browser
         await driver.quit();
     }
