@@ -18,15 +18,14 @@ class BaseTest {
 		console.log("HEADLESS:"+this.headless);
 		console.log("BROWSER:"+this.browser);
 
+		// run server and setup driver
+		await this.runServer( "cordova", ["serve"] );
 		await this.setupDriver();
-		//this.runServer( "cordova", ["serve"] );
-		await this.driver.sleep(5000);
-		resolve(this.driver);
 	}
 
 	async tearDown() {
-		this.driver.sleep(2000);
-		//this.stopServer();
+		await this.driver.sleep(2000);
+		await this.stopServer();
 		// tanquem browser
         await this.driver.quit();
 	}
@@ -88,8 +87,12 @@ class BaseTest {
 }
 
 
-const test = new BaseTest();
-test.setUp();
 
-//test.tearDown();
-console.log("END")
+(async function test_example() {
+	const test = new BaseTest();
+	await test.setUp();
+	await test.tearDown();
+	console.log("END")
+})();
+
+
