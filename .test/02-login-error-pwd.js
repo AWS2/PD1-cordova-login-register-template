@@ -1,65 +1,38 @@
-const {Builder, Browser, By, Key, until} = require("selenium-webdriver");
-const firefox = require('selenium-webdriver/firefox');
-const chrome = require('selenium-webdriver/chrome');
-const { spawn } = require("child_process");
+// carreguem les llibreries
+const { BaseCordovaTest } = require("./BaseCordovaTest.js")
+const { By, until } = require("selenium-webdriver");
 const assert = require('assert');
-const HEADLESS = true;
 
+// heredem una classe amb un sol mètode test()
+// emprem this.driver per utilitzar Selenium
 
-
-// Engeguem server amb la APP
-const cmd = spawn("cordova", ["serve"]);
-
-cmd.stdout.on("data", data => {
-    console.log(`stdout: ${data}`);
-});
-cmd.stderr.on("data", data => {
-    console.log(`stderr: ${data}`);
-});
-cmd.on('error', (error) => {
-    console.log(`error: ${error.message}`);
-});
-cmd.on("close", code => {
-    console.log(`child process exited with code ${code}`);
-});
-
-
-// TESTS
-
-(async function test_exemple() {
-    // Configurem driver
-    let driver = await new Builder()
-            .forBrowser(Browser.FIREFOX)
-            .setFirefoxOptions(new firefox.Options().headless())
-            //.forBrowser(Browser.CHROME)
-            //.setChromeOptions(new chrome.Options().addArguments('--headless=new'))
-            .build();
-    try {
-        // deixem temps a que el servidor es posi en marxa
-        await driver.sleep(2000);
-
+class MyTest extends BaseCordovaTest
+{
+	async test() {
         // testejem LOGIN INCORRECTE usuari predefinit
         //////////////////////////////////////////////////////
-        await driver.get("http://localhost:8000/browser/www/");
-        await driver.findElement(By.id("usuari")).sendKeys("ieti");
-        await driver.findElement(By.id("contrasenya")).sendKeys("h378h8327g");
-        await driver.findElement(By.xpath("//button[text()='Login']")).click();
+        await this.driver.get("http://localhost:8000/browser/www/");
+        await this.driver.findElement(By.id("usuari")).sendKeys("ieti");
+        await this.driver.findElement(By.id("contrasenya")).sendKeys("h378h8327g");
+        await this.driver.findElement(By.xpath("//button[text()='Login']")).click();
 
         // comprovem que l'alert message és ERRONI
-        await driver.wait(until.alertIsPresent(),2000,"ERROR TEST: després del login ha d'aparèixer un alert amb el resultat de la validació de la contrasenya.");
-        let alert = await driver.switchTo().alert();
+        await this.driver.wait(until.alertIsPresent(),2000,"ERROR TEST: després del login ha d'aparèixer un alert amb el resultat de la validació de la contrasenya.");
+        let alert = await this.driver.switchTo().alert();
         let alertText = await alert.getText();
         let assertMessage = "Login incorrecte";
         assert(alertText==assertMessage,"ERROR TEST: l'usuari ieti/h378h8327g hauria de fallar amb el missatge '"+assertMessage+"' en un alert.");
         await alert.accept();
 
         console.log("TEST OK");
+	}
+}
 
-    } finally {
-        // tanquem servidor
-        await cmd.kill("SIGHUP")
-        // tanquem browser
-        await driver.quit();
-    }
+// executem el test
 
+(async function test_example() {
+	const test = new MyTest();
+	await test.run();
+	console.log("END")
 })();
+
