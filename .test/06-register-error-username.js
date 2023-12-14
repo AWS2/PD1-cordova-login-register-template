@@ -1,45 +1,17 @@
-const {Builder, Browser, By, Key, until} = require("selenium-webdriver");
-const firefox = require('selenium-webdriver/firefox');
-const chrome = require('selenium-webdriver/chrome');
-const { spawn } = require("child_process");
+// carreguem les llibreries
+const { BaseCordovaTest } = require("./BaseCordovaTest.js")
+const { By, until } = require("selenium-webdriver");
 const assert = require('assert');
-const HEADLESS = true;
 
+// heredem una classe amb un sol mètode test()
+// emprem this.driver per utilitzar Selenium
 
-
-// Engeguem server amb la APP
-const cmd = spawn("cordova", ["serve"]);
-
-cmd.stdout.on("data", data => {
-    console.log(`stdout: ${data}`);
-});
-cmd.stderr.on("data", data => {
-    console.log(`stderr: ${data}`);
-});
-cmd.on('error', (error) => {
-    console.log(`error: ${error.message}`);
-});
-cmd.on("close", code => {
-    console.log(`child process exited with code ${code}`);
-});
-
-
-// TESTS
-
-(async function test_exemple() {
-    // Configurem driver
-    let driver = await new Builder()
-            .forBrowser(Browser.FIREFOX)
-            .setFirefoxOptions(new firefox.Options().headless())
-            //.forBrowser(Browser.CHROME)
-            //.setChromeOptions(new chrome.Options().addArguments('--headless=new'))
-            .build();
-    try {
-        // deixem temps a que el servidor es posi en marxa
-        await driver.sleep(2000);
-
+class MyTest extends BaseCordovaTest
+{
+	async test() {
         // introduim nou usuari
         //////////////////////////////////////////////////////
+        let driver = this.driver;
         let nouusuari = "random";
         let novacontrasenya = "mesrandom";
         let nouemail = "encaramesrandom";
@@ -68,12 +40,14 @@ cmd.on("close", code => {
         await alert.accept();
 
         console.log("TEST OK");
-
-    } finally {
-        // tanquem servidor
-        await cmd.kill("SIGHUP")
-        // tanquem browser
-        await driver.quit();
     }
+}
 
+// executem el test
+
+(async function test_example() {
+	const test = new MyTest();
+	await test.run();
+	console.log("END")
 })();
+
