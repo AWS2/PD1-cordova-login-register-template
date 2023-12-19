@@ -95,7 +95,7 @@ class BaseCordovaTest {
 	async stopServer() {
         // tanquem servidor
         if( process.platform=="win32" ) {
-            spawn("taskkill", ["/pid", cmd.pid, '/f', '/t']);
+            spawn("taskkill", ["/pid", this.cmd.pid, '/f', '/t']);
         } else {
             // Linux, MacOS or other
             await this.cmd.kill("SIGHUP")
