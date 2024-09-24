@@ -1,0 +1,98 @@
+name: Autograding Tests
+'on':
+- workflow_dispatch
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: 01-login-ok
+      id: 01-login-ok
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 01-login-ok
+        setup-command: sudo apt update ; sudo apt install -y nodejs ; sudo npm install
+          -g cordova ; cordova platform add browser ; sudo snap remove firefox ; sudo
+          apt install software-properties-common -y ; sudo add-apt-repository -y ppa:mozillateam/ppa
+          ; sudo apt install firefox-esr
+        command: cd .test ; npm install ; node 01-login-ok.js
+        timeout: 10
+        max-score: 1
+    - name: 02-login-error-pwd
+      id: 02-login-error-pwd
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 02-login-error-pwd
+        setup-command: sudo apt update ; sudo apt install -y nodejs ; sudo npm install
+          -g cordova ; cordova platform add browser ; sudo snap remove firefox ; sudo
+          apt install software-properties-common -y ; sudo add-apt-repository -y ppa:mozillateam/ppa
+          ; sudo apt install firefox-esr
+        command: cd .test ; npm install ; node 02-login-error-pwd.js
+        timeout: 10
+        max-score: 1
+    - name: 03-login-error-user
+      id: 03-login-error-user
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 03-login-error-user
+        setup-command: sudo apt update ; sudo apt install -y nodejs ; sudo npm install
+          -g cordova ; cordova platform add browser ; sudo snap remove firefox ; sudo
+          apt install software-properties-common -y ; sudo add-apt-repository -y ppa:mozillateam/ppa
+          ; sudo apt install firefox-esr
+        command: cd .test ; npm install ; node 03-login-error-user.js
+        timeout: 10
+        max-score: 1
+    - name: 04-register-error-pwd
+      id: 04-register-error-pwd
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 04-register-error-pwd
+        setup-command: sudo apt update ; sudo apt install -y nodejs ; sudo npm install
+          -g cordova ; cordova platform add browser ; sudo snap remove firefox ; sudo
+          apt install software-properties-common -y ; sudo add-apt-repository -y ppa:mozillateam/ppa
+          ; sudo apt install firefox-esr
+        command: cd .test ; npm install ; node 04-register-error-pwd.js
+        timeout: 10
+        max-score: 1
+    - name: 05-register-ok
+      id: 05-register-ok
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 05-register-ok
+        setup-command: sudo apt update ; sudo apt install -y nodejs ; sudo npm install
+          -g cordova ; cordova platform add browser ; sudo snap remove firefox ; sudo
+          apt install software-properties-common -y ; sudo add-apt-repository -y ppa:mozillateam/ppa
+          ; sudo apt install firefox-esr
+        command: cd .test ; npm install ; node 05-register-ok.js
+        timeout: 10
+        max-score: 1
+    - name: 06-register-error-username
+      id: 06-register-error-username
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: 06-register-error-username
+        setup-command: sudo apt update ; sudo apt install -y nodejs ; sudo npm install
+          -g cordova ; cordova platform add browser ; sudo snap remove firefox ; sudo
+          apt install software-properties-common -y ; sudo add-apt-repository -y ppa:mozillateam/ppa
+          ; sudo apt install firefox-esr
+        command: cd .test ; npm install ; node 06-register-error-username.js
+        timeout: 10
+        max-score: 1
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        01-LOGIN-OK_RESULTS: "${{steps.01-login-ok.outputs.result}}"
+        02-LOGIN-ERROR-PWD_RESULTS: "${{steps.02-login-error-pwd.outputs.result}}"
+        03-LOGIN-ERROR-USER_RESULTS: "${{steps.03-login-error-user.outputs.result}}"
+        04-REGISTER-ERROR-PWD_RESULTS: "${{steps.04-register-error-pwd.outputs.result}}"
+        05-REGISTER-OK_RESULTS: "${{steps.05-register-ok.outputs.result}}"
+        06-REGISTER-ERROR-USERNAME_RESULTS: "${{steps.06-register-error-username.outputs.result}}"
+      with:
+        runners: 01-login-ok,02-login-error-pwd,03-login-error-user,04-register-error-pwd,05-register-ok,06-register-error-username
